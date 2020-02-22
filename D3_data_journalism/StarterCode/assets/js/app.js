@@ -25,49 +25,50 @@ var chartGroup = svg.append("g")
   .attr("transform", `translate(${chartMargin.left}, ${chartMargin.top})`);
 
 // Load data from data.csv
-d3.csv("data.csv", function(hData) {
+d3.csv("data.csv").then(function(hData) {
     // change string (from CSV) into number format
     hData.forEach(function(d) {
       d.poverty = +d.poverty;
       d.healthcare = +d.healthcare;
-  //    console.log(d);
-    });
+   // console.log(hData);
 
-  // Configure a band scale for the horizontal axis with a padding of 0.1 (10%)
-  var xBandScale = d3.scaleBand()
-    .domain(hData.map(d => d.poverty))
-    .range([0, chartWidth])
-    .padding(0.1);
+});  
+// Configure a band scale for the horizontal axis with a padding of 0.1 (10%)
+var xBandScale = d3.scaleLinear()
+  .domain(hData.map(d => d.poverty))
+  .range([0, chartWidth])
+  // .padding(0.1);
 
-  // Create a linear scale for the vertical axis.
-  var yLinearScale = d3.scaleLinear()
-    .domain([0, d3.max(hData, d => d.healthcare)])
-    .range([chartHeight, 0]);
+// Create a linear scale for the vertical axis.
+var yLinearScale = d3.scaleLinear()
+  .domain([0, d3.max(hData, d => d.healthcare)])
+  .range([chartHeight, 0]);
 
-  // Create two new functions passing our scales in as arguments
-  // These will be used to create the chart's axes
-  var bottomAxis = d3.axisBottom(xBandScale);
-  var leftAxis = d3.axisLeft(yLinearScale).ticks(10);
+// Create two new functions passing our scales in as arguments
+// These will be used to create the chart's axes
+var bottomAxis = d3.axisBottom(xBandScale);
+var leftAxis = d3.axisLeft(yLinearScale).ticks(10);
 
-  // Append two SVG group elements to the chartGroup area,
-  // and create the bottom and left axes inside of them
-  chartGroup.append("g")
-    .call(leftAxis);
+// Append two SVG group elements to the chartGroup area,
+// and create the bottom and left axes inside of them
+chartGroup.append("g")
+  .call(leftAxis);
 
-  chartGroup.append("g")
-    .attr("transform", `translate(0, ${chartHeight})`)
-    .call(bottomAxis);
+chartGroup.append("g")
+  .attr("transform", `translate(0, ${chartHeight})`)
+  .call(bottomAxis);
 
-  // Create one SVG dot per piece of Data
-  // Use the linear and band scales to position each dot within the chart
-  chartGroup.selectAll(".dot")
-    .data(hData)
-    .enter()
-    .append("circle")
-    .attr("class", "dot")
-    .attr("x", d => xBandScale(d.healthcare))
-    .attr("y", d => yLinearScale(d.poverty))
-    .attr("width", xBandScale.bandwidth())
-    .attr("height", d => chartHeight - yLinearScale(d.poverty));
-
+// Create one SVG dot per piece of Data
+// Use the linear and band scales to position each dot within the chart
+chartGroup.selectAll("circle")
+  .data(hData)
+  .enter()
+  .append("circle")
+  .attr("class", "dot")
+  .attr("cx", d => xBandScale(d.healthcare))
+  .attr("cy", d => yLinearScale(d.poverty))
+  //.attr("cx", xBandScale.bandwidth())
+  .attr("r", 5);
+}).catch(function(error) {
+  console.log(error);
 });
