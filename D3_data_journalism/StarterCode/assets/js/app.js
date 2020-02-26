@@ -33,11 +33,10 @@ d3.csv("data.csv").then(function(hData) {
    // console.log(hData);
 
 });  
-// Configure a band scale for the horizontal axis with a padding of 0.1 (10%)
+// Configure a band scale for the horizontal axis.
 var xBandScale = d3.scaleLinear()
-  .domain(hData.map(d => d.poverty))
-  .range([0, chartWidth])
-  // .padding(0.1);
+  .domain(d3.extent(hData,d => d.poverty))
+  .range([0, chartWidth]);
 
 // Create a linear scale for the vertical axis.
 var yLinearScale = d3.scaleLinear()
@@ -59,16 +58,30 @@ chartGroup.append("g")
   .call(bottomAxis);
 
 // Create one SVG dot per piece of Data
-// Use the linear and band scales to position each dot within the chart
+// Use the linear scales to position each dot within the chart
 chartGroup.selectAll("circle")
   .data(hData)
   .enter()
   .append("circle")
-  .attr("class", "dot")
+  .attr("class", "text")
   .attr("cx", d => xBandScale(d.healthcare))
   .attr("cy", d => yLinearScale(d.poverty))
-  //.attr("cx", xBandScale.bandwidth())
-  .attr("r", 5);
+  .attr("r", 8)
+  .attr("fill", "lightblue");
+  
+  // draw legend
+  var legend = svg.selectAll(".legend")
+      .data(color.domain())
+      .enter().append("g")
+      .attr("class", "legend")
+      .attr("transform", function(d, i) { return "translate(0," + i * 20 + ")"; });
+      // draw legend text
+      legend.append("text")
+      .attr("x", width - 24)
+      .attr("y", 9)
+      .attr("dy", ".35em")
+      .style("text-anchor", "end")
+      .text(function(d) { return d;})
 }).catch(function(error) {
   console.log(error);
 });
